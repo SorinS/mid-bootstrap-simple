@@ -1,0 +1,17 @@
+build/*
+bin/*
+.idea/*
+data/*
+logs/*
+token
+/*.sqlite3
+/Makefile.local
+.DS_Store
+scripts/*.pem
+scripts/*.jwt
+scripts/*token
+tests/*.pem
+tests/jwtool
+tests/jwtool.linux-amd64.bin
+tests/jwtool.linux-arm64.bin
+tests/jwtool.darwin-amd64.bin

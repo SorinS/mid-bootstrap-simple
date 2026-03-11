@@ -1,0 +1,4 @@
+export BOOTSTRAP_URL=https://192.168.1.161:8443
+export BOOTSTRAP_USER=admin
+export BOOTSTRAP_PWD=admin123
+

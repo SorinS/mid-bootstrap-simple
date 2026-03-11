@@ -1,0 +1,37 @@
+{
+  "listen_addr": ":8443",
+  "tls_cert": "/etc/mid-bootstrap/server.crt",
+  "tls_key": "/etc/mid-bootstrap/server.key",
+  "tls_min_version": "1.2",
+
+  "vault_addr": "https://vault.example.org:8200",
+  "vault_ca_cert": "/etc/mid-bootstrap/vault-ca.pem",
+  "vault_skip_verify": false,
+  "vault_namespace": "",
+
+  "bootstrap_type": "token",
+  "vault_jwt_source": "file:///var/run/secrets/kubernetes.io/serviceaccount/token",
+  "vault_auth_role": "vm",
+  "vault_auth_mount": "jwt",
+
+  "request_ttl": "24h",
+  "cleanup_interval": "1h",
+  "default_retry_after": 300,
+
+  "trusted_networks": ["10.0.0.0/8", "192.168.0.0/16"],
+  "auto_approve_from_trust": false,
+  "auto_approve_tpm": false,
+  "auto_approve_dns": false,
+  "require_tpm": false,
+
+  "web_enabled": true,
+  "web_path_prefix": "/admin",
+  "session_secret": "change-me-in-production",
+  "web_auth_method": "basic",
+  "web_auth_realm": "MID Bootstrap Server",
+  "web_auth_users": {
+    "admin": {
+      "password_hash": "5e884898da28047d9164b9cde84bfdc3c7a8e3b5d9b..."
+    }
+  }
+}

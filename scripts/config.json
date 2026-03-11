@@ -1,0 +1,30 @@
+{
+  "listen_addr": ":8443",
+  "tls_cert": "certs/bootstrap-cert.pem",
+  "tls_key": "certs/bootstrap-key.pem",
+
+  "vault_addr": "https://192.168.1.161:8200",
+  "vault_ca_cert": "certs/vault-ca.pem",
+
+  "vault_auth_method": "token",
+  "vault_token_file": "vault-token.txt",
+
+  "mid_auth_mount": "mid",
+  "mid_role": "vm",
+
+  "trusted_networks": ["192.168.1.0/24"],
+  "auto_approve_from_trust": false,
+
+  "store_type": "sqlite",
+  "store_path": "bootstrap.db",
+
+  "web_enabled": true,
+  "web_auth_method": "basic",
+  "web_auth_realm": "MID Bootstrap Server",
+  "web_auth_users": {
+    "admin": {
+      "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "roles": ["admin"]
+    }
+  }
+}

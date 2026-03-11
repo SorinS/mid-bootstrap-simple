@@ -1,0 +1,1355 @@
+basePath: /
+definitions:
+  server.ManualBootstrapRequest:
+    properties:
+      arch:
+        type: string
+      hostname:
+        type: string
+      os:
+        type: string
+      reason:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  store.PaginatedRegistrations:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/types.AgentRegistration'
+        type: array
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
+    type: object
+  store.PaginatedRequests:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/types.MachineRequest'
+        type: array
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
+    type: object
+  types.AgentRegistration:
+    properties:
+      agent_id:
+        description: Agent identification
+        type: string
+      agent_version:
+        type: string
+      arch:
+        type: string
+      binary_path:
+        type: string
+      ca_status:
+        allOf:
+        - $ref: '#/definitions/types.CAStatus'
+        description: SPIFFE/CA status
+      cert_identity:
+        description: Identity from client certificate (CN or SPIFFE ID)
+        type: string
+      cert_verified:
+        description: mTLS verification
+        type: boolean
+      client_ip:
+        description: Server-side metadata
+        type: string
+      hostname:
+        type: string
+      ip_addresses:
+        items:
+          type: string
+        type: array
+      last_seen_at:
+        type: string
+      mac_addresses:
+        items:
+          type: string
+        type: array
+      os:
+        description: System information
+        type: string
+      os_version:
+        type: string
+      pow_status:
+        description: '"ok", "warning", "failed", "disabled"'
+        type: string
+      pow_verification:
+        allOf:
+        - $ref: '#/definitions/types.PoWVerificationResult'
+        description: Verification result (server-side)
+      received_at:
+        type: string
+      register_count:
+        description: Number of registrations received
+        type: integer
+      secure_heartbeat:
+        allOf:
+        - $ref: '#/definitions/types.SecureHeartbeat'
+        description: PoW (Proof of Work) anti-spoofing - advisory mode
+      timestamp:
+        description: Timestamp from agent
+        type: string
+      uptime_seconds:
+        description: Runtime info
+        type: integer
+      working_dir:
+        type: string
+    type: object
+  types.Alert:
+    properties:
+      acknowledged:
+        description: Acknowledgement
+        type: boolean
+      acknowledged_at:
+        type: string
+      acknowledged_by:
+        type: string
+      agent_id:
+        description: Agent information
+        type: string
+      agent_version:
+        type: string
+      created_at:
+        type: string
+      details:
+        description: JSON for extra info
+        type: string
+      hostname:
+        type: string
+      id:
+        type: string
+      last_seen_at:
+        description: For stale agent alerts
+        type: string
+      message:
+        description: Alert details
+        type: string
+      new_version:
+        type: string
+      old_version:
+        description: For version change alerts
+        type: string
+      resolution:
+        description: e.g., "deleted_old_version", "agent_recovered"
+        type: string
+      resolved:
+        description: Resolution
+        type: boolean
+      resolved_at:
+        type: string
+      resolved_by:
+        type: string
+      severity:
+        $ref: '#/definitions/types.AlertSeverity'
+      stale_duration_min:
+        type: integer
+      type:
+        $ref: '#/definitions/types.AlertType'
+    type: object
+  types.AlertSeverity:
+    enum:
+    - info
+    - warning
+    - critical
+    type: string
+    x-enum-varnames:
+    - AlertSeverityInfo
+    - AlertSeverityWarning
+    - AlertSeverityCritical
+  types.AlertStats:
+    properties:
+      stale_agent_count:
+        type: integer
+      total_alerts:
+        type: integer
+      unacknowledged_count:
+        type: integer
+      version_change_count:
+        type: integer
+    type: object
+  types.AlertType:
+    enum:
+    - stale_agent
+    - version_change
+    type: string
+    x-enum-comments:
+      AlertTypeStaleAgent: Agent hasn't sent heartbeat in configured time
+      AlertTypeVersionChange: Agent version changed (old version entry)
+    x-enum-varnames:
+    - AlertTypeStaleAgent
+    - AlertTypeVersionChange
+  types.ApprovalRequest:
+    properties:
+      approved_by:
+        type: string
+      comment:
+        type: string
+      request_id:
+        type: string
+    type: object
+  types.AuditEntry:
+    properties:
+      arch:
+        type: string
+      client_ip:
+        type: string
+      details:
+        description: JSON string for extra info
+        type: string
+      event_type:
+        $ref: '#/definitions/types.AuditEventType'
+      hostname:
+        type: string
+      id:
+        type: integer
+      ip_addresses:
+        items:
+          type: string
+        type: array
+      mac_addresses:
+        items:
+          type: string
+        type: array
+      machine_id:
+        type: string
+      os:
+        type: string
+      performed_by:
+        type: string
+      reason:
+        type: string
+      request_id:
+        type: string
+      timestamp:
+        type: string
+      token_id:
+        type: string
+    type: object
+  types.AuditEventType:
+    enum:
+    - approval
+    - denial
+    - token_delivered
+    - reset_to_pending
+    - auto_approval
+    - manual_bootstrap
+    type: string
+    x-enum-varnames:
+    - AuditEventApproval
+    - AuditEventDenial
+    - AuditEventTokenDelivered
+    - AuditEventResetToPending
+    - AuditEventAutoApproval
+    - AuditEventManualBootstrap
+  types.AutoBootstrapRequest:
+    properties:
+      agent_version:
+        type: string
+      arch:
+        type: string
+      hostname:
+        type: string
+      ip_addresses:
+        items:
+          type: string
+        type: array
+      mac_addresses:
+        items:
+          type: string
+        type: array
+      machine_id:
+        type: string
+      os:
+        type: string
+      os_version:
+        type: string
+      tpm_attestation:
+        $ref: '#/definitions/types.TPMAttestation'
+      uptime_seconds:
+        type: integer
+    type: object
+  types.AutoBootstrapResponse:
+    properties:
+      message:
+        type: string
+      nonce:
+        items:
+          type: integer
+        type: array
+      provisioning_window:
+        $ref: '#/definitions/types.ProvisioningWindow'
+      queue_position:
+        type: integer
+      retry_after_seconds:
+        type: integer
+      status:
+        type: string
+      token:
+        $ref: '#/definitions/types.BootstrapToken'
+    type: object
+  types.BootstrapToken:
+    properties:
+      agent_id:
+        type: string
+      expires_at:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+      token_id:
+        type: string
+      ttl:
+        type: integer
+    type: object
+  types.CAStatus:
+    properties:
+      common_name:
+        type: string
+      expires_at:
+        type: string
+      issued_at:
+        type: string
+      last_renewal_err:
+        type: string
+      ready:
+        type: boolean
+      remaining_ttl:
+        type: string
+      renewal_eta:
+        type: string
+      renewal_method:
+        type: string
+      serial_number:
+        type: string
+    type: object
+  types.DashboardStats:
+    properties:
+      approved_requests:
+        type: integer
+      denied_requests:
+        type: integer
+      expired_requests:
+        type: integer
+      pending_requests:
+        type: integer
+      total_requests:
+        type: integer
+    type: object
+  types.DenialRequest:
+    properties:
+      denied_by:
+        type: string
+      reason:
+        type: string
+      request_id:
+        type: string
+    type: object
+  types.MachineRequest:
+    properties:
+      agent_version:
+        type: string
+      approved_at:
+        type: string
+      approved_by:
+        description: Approval tracking
+        type: string
+      arch:
+        type: string
+      client_ip:
+        description: Client tracking
+        type: string
+      created_at:
+        description: When the request was received
+        type: string
+      denial_reason:
+        type: string
+      denied_at:
+        type: string
+      denied_by:
+        type: string
+      has_tpm:
+        description: TPM attestation (if provided)
+        type: boolean
+      hostname:
+        description: Machine identification
+        type: string
+      id:
+        description: Unique request ID
+        type: string
+      ip_addresses:
+        items:
+          type: string
+        type: array
+      last_nonce:
+        description: TPM challenge nonce (for verifying attestation freshness)
+        items:
+          type: integer
+        type: array
+      last_seen_at:
+        type: string
+      mac_addresses:
+        items:
+          type: string
+        type: array
+      machine_id:
+        type: string
+      os:
+        description: System information
+        type: string
+      os_version:
+        type: string
+      request_count:
+        description: Number of times this machine has called
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/types.RequestStatus'
+        description: Request status
+      status_reason:
+        type: string
+      token:
+        allOf:
+        - $ref: '#/definitions/types.BootstrapToken'
+        description: Token (populated after approval)
+      tpm_attestation:
+        $ref: '#/definitions/types.TPMAttestation'
+      updated_at:
+        description: Last status update
+        type: string
+      uptime_seconds:
+        type: integer
+    type: object
+  types.PoWSystemMetrics:
+    properties:
+      boot_id:
+        type: string
+      boot_time:
+        type: integer
+      disk_serial:
+        type: string
+      dmi_serial:
+        type: string
+      hostname:
+        type: string
+      kernel_version:
+        type: string
+      mac_addresses:
+        items:
+          type: string
+        type: array
+      machine_id:
+        type: string
+      product_uuid:
+        type: string
+      uptime_seconds:
+        type: integer
+    type: object
+  types.PoWVerificationResult:
+    properties:
+      chain_valid:
+        type: boolean
+      errors:
+        items:
+          type: string
+        type: array
+      metrics_valid:
+        type: boolean
+      valid:
+        type: boolean
+      warnings:
+        items:
+          type: string
+        type: array
+      witness_count:
+        type: integer
+      witness_threshold:
+        type: integer
+      work_valid:
+        type: boolean
+    type: object
+  types.ProvisioningWindow:
+    properties:
+      end:
+        type: string
+      start:
+        type: string
+    type: object
+  types.RequestStatus:
+    enum:
+    - pending
+    - approved
+    - denied
+    - expired
+    - error
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusApproved
+    - StatusDenied
+    - StatusExpired
+    - StatusError
+  types.SecureHeartbeat:
+    properties:
+      agent_id:
+        description: Identity
+        type: string
+      difficulty:
+        description: Required leading zero bits
+        type: integer
+      hostname:
+        type: string
+      merkle_root:
+        description: Root of all previous heartbeats
+        items:
+          type: integer
+        type: array
+      nonce:
+        description: Proof of work
+        type: integer
+      previous_hash:
+        description: Hash of previous heartbeat
+        items:
+          type: integer
+        type: array
+      public_key:
+        description: Public key for signature verification
+        items:
+          type: integer
+        type: array
+      sequence:
+        description: Proof chain - links to previous heartbeats
+        type: integer
+      signature:
+        description: Signature over all above fields
+        items:
+          type: integer
+        type: array
+      system_metrics:
+        allOf:
+        - $ref: '#/definitions/types.PoWSystemMetrics'
+        description: Hardware binding
+      timestamp:
+        description: Unix timestamp
+        type: integer
+      tpm_quote:
+        items:
+          type: integer
+        type: array
+      witnesses:
+        description: Subnet witnesses
+        items:
+          $ref: '#/definitions/types.WitnessStatement'
+        type: array
+      work_hash:
+        description: Hash meeting difficulty
+        items:
+          type: integer
+        type: array
+    type: object
+  types.SystemStats:
+    properties:
+      active_agents:
+        description: Seen in last 5 minutes
+        type: integer
+      ca_ready_agents:
+        description: Agents with CA ready
+        type: integer
+      total_agents:
+        type: integer
+    type: object
+  types.TPMAttestation:
+    properties:
+      ak_certificate:
+        items:
+          type: integer
+        type: array
+      ak_public:
+        items:
+          type: integer
+        type: array
+      ak_public_pem:
+        description: PEM format (preferred for verification)
+        type: string
+      ek_certificate:
+        items:
+          type: integer
+        type: array
+      ek_public:
+        items:
+          type: integer
+        type: array
+      nonce:
+        items:
+          type: integer
+        type: array
+      pcr_digest:
+        items:
+          type: integer
+        type: array
+      pcrs:
+        items:
+          type: integer
+        type: array
+      quote:
+        items:
+          type: integer
+        type: array
+      signature:
+        items:
+          type: integer
+        type: array
+      verified:
+        type: boolean
+      verify_errors:
+        items:
+          type: string
+        type: array
+    type: object
+  types.WitnessStatement:
+    properties:
+      nonce:
+        items:
+          type: integer
+        type: array
+      signature:
+        items:
+          type: integer
+        type: array
+      subject_id:
+        type: string
+      timestamp:
+        type: integer
+      witness_addr:
+        type: string
+      witness_id:
+        type: string
+    type: object
+  vault.VaultHealthStatus:
+    properties:
+      cluster_name:
+        type: string
+      error:
+        type: string
+      healthy:
+        type: boolean
+      initialized:
+        type: boolean
+      last_checked:
+        type: string
+      response_time_ms:
+        type: integer
+      sealed:
+        type: boolean
+      standby:
+        type: boolean
+      version:
+        type: string
+    type: object
+info:
+  contact:
+    name: MAG Support
+    url: https://github.com/your-org/mid-bootstrap-server
+  description: HTTP Basic Authentication. Click "Authorize" button and enter username/password
+    configured in the server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: MID Bootstrap Server API
+  version: 0.4.3
+paths:
+  /api/alert-stats:
+    get:
+      description: Returns statistics about alerts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert statistics
+          schema:
+            $ref: '#/definitions/types.AlertStats'
+      summary: Get alert statistics
+      tags:
+      - alerts
+  /api/alerts:
+    get:
+      description: Returns a list of all alerts, newest first
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of alerts
+          schema:
+            items:
+              $ref: '#/definitions/types.Alert'
+            type: array
+      summary: List all alerts
+      tags:
+      - alerts
+  /api/alerts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 'Handles individual alert operations: GET retrieves alert details,
+        POST performs actions (acknowledge, resolve, delete-agent), DELETE removes
+        the alert'
+      parameters:
+      - description: Alert ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Action to perform: acknowledge, resolve, or delete-agent (POST
+          only)'
+        in: path
+        name: action
+        type: string
+      - description: Resolution details for resolve action
+        in: body
+        name: resolution
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert details (GET) or action result (POST/DELETE)
+          schema:
+            $ref: '#/definitions/types.Alert'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Alert not found
+          schema:
+            type: string
+      summary: Get, update, or delete an alert
+      tags:
+      - alerts
+    get:
+      consumes:
+      - application/json
+      description: 'Handles individual alert operations: GET retrieves alert details,
+        POST performs actions (acknowledge, resolve, delete-agent), DELETE removes
+        the alert'
+      parameters:
+      - description: Alert ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Action to perform: acknowledge, resolve, or delete-agent (POST
+          only)'
+        in: path
+        name: action
+        type: string
+      - description: Resolution details for resolve action
+        in: body
+        name: resolution
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert details (GET) or action result (POST/DELETE)
+          schema:
+            $ref: '#/definitions/types.Alert'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Alert not found
+          schema:
+            type: string
+      summary: Get, update, or delete an alert
+      tags:
+      - alerts
+  /api/alerts/{id}/{action}:
+    post:
+      consumes:
+      - application/json
+      description: 'Handles individual alert operations: GET retrieves alert details,
+        POST performs actions (acknowledge, resolve, delete-agent), DELETE removes
+        the alert'
+      parameters:
+      - description: Alert ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 'Action to perform: acknowledge, resolve, or delete-agent (POST
+          only)'
+        in: path
+        name: action
+        type: string
+      - description: Resolution details for resolve action
+        in: body
+        name: resolution
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert details (GET) or action result (POST/DELETE)
+          schema:
+            $ref: '#/definitions/types.Alert'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Alert not found
+          schema:
+            type: string
+      summary: Get, update, or delete an alert
+      tags:
+      - alerts
+  /api/approve:
+    post:
+      consumes:
+      - application/json
+      description: Approves a pending bootstrap request and generates a token for
+        the agent
+      parameters:
+      - description: Approval details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.ApprovalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Approval confirmation with token info
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request or not pending
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Request not found
+          schema:
+            type: string
+        "500":
+          description: Token generation failed
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Approve a bootstrap request
+      tags:
+      - Admin
+  /api/audit:
+    get:
+      description: Returns audit log entries with optional filtering by hostname or
+        event type
+      parameters:
+      - default: 100
+        description: Maximum number of entries to return
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by hostname
+        in: query
+        name: hostname
+        type: string
+      - description: Filter by event type (approval, denial, token_delivered, etc.)
+        in: query
+        name: event_type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of audit entries
+          schema:
+            items:
+              $ref: '#/definitions/types.AuditEntry'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Get audit log
+      tags:
+      - Admin
+  /api/deny:
+    post:
+      consumes:
+      - application/json
+      description: Denies a pending bootstrap request with a reason
+      parameters:
+      - description: Denial details with reason
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.DenialRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Denial confirmation
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Request not found
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Deny a bootstrap request
+      tags:
+      - Admin
+  /api/generate-token:
+    post:
+      consumes:
+      - application/json
+      description: Generates a bootstrap token that operators can use with the agent's
+        local /bootstrap endpoint
+      parameters:
+      - description: Token generation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.ApprovalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token details including the actual token value
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Request not found
+          schema:
+            type: string
+        "500":
+          description: Token generation failed
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Generate bootstrap token for manual onboarding
+      tags:
+      - Admin
+  /api/manual-bootstrap:
+    post:
+      consumes:
+      - application/json
+      description: Generates a bootstrap token for a machine without requiring a bootstrap
+        request
+      parameters:
+      - description: Manual bootstrap request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.ManualBootstrapRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Generated bootstrap token
+          schema:
+            $ref: '#/definitions/types.BootstrapToken'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Failed to generate token
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Generate manual bootstrap token
+      tags:
+      - Admin
+  /api/requests:
+    get:
+      description: Returns bootstrap requests, optionally filtered by status (supports
+        pagination)
+      parameters:
+      - description: Filter by status (pending, approved, denied)
+        in: query
+        name: status
+        type: string
+      - description: Offset for pagination (default 0)
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination (default 50, max 500, 0 for all)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of bootstrap requests
+          schema:
+            $ref: '#/definitions/store.PaginatedRequests'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: List bootstrap requests
+      tags:
+      - Admin
+  /api/requests/{id}:
+    delete:
+      description: Get details of a specific request (GET) or delete it (DELETE)
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deletion confirmation (DELETE)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Request not found
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Get or delete a bootstrap request
+      tags:
+      - Admin
+    get:
+      description: Get details of a specific request (GET) or delete it (DELETE)
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deletion confirmation (DELETE)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Request not found
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Get or delete a bootstrap request
+      tags:
+      - Admin
+  /api/stats:
+    get:
+      description: Returns statistics about bootstrap requests (total, pending, approved,
+        denied)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Dashboard statistics
+          schema:
+            $ref: '#/definitions/types.DashboardStats'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Get dashboard statistics
+      tags:
+      - Admin
+  /api/system-stats:
+    get:
+      description: Returns statistics about registered agents (total, active, CA ready)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System statistics
+          schema:
+            $ref: '#/definitions/types.SystemStats'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Get system statistics
+      tags:
+      - System
+  /api/systems:
+    get:
+      description: Returns registered agents with their status information (supports
+        pagination)
+      parameters:
+      - description: Offset for pagination (default 0)
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination (default 50, max 500, 0 for all)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of registered agents
+          schema:
+            $ref: '#/definitions/store.PaginatedRegistrations'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: List registered agents
+      tags:
+      - System
+  /api/systems/{id}:
+    delete:
+      description: Delete an agent registration by ID
+      parameters:
+      - description: Agent ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Deletion status
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Registration not found
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Delete a registration
+      tags:
+      - System
+  /api/vault-status:
+    get:
+      description: Returns the health status of the connected Vault server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Vault health status
+          schema:
+            $ref: '#/definitions/vault.VaultHealthStatus'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Get Vault health status
+      tags:
+      - Admin
+  /bootstrap/{os}/machine:
+    post:
+      consumes:
+      - application/json
+      description: Agents call this endpoint to request bootstrap enrollment. Returns
+        approval status and token if approved.
+      parameters:
+      - description: Operating system (linux, darwin, windows)
+        in: path
+        name: os
+        required: true
+        type: string
+      - description: Bootstrap request with machine information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.AutoBootstrapRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bootstrap response with status and optional token
+          schema:
+            $ref: '#/definitions/types.AutoBootstrapResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/types.AutoBootstrapResponse'
+        "403":
+          description: Request denied
+          schema:
+            $ref: '#/definitions/types.AutoBootstrapResponse'
+      summary: Submit bootstrap request
+      tags:
+      - Bootstrap
+  /health:
+    get:
+      description: Returns the health status of the server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Server is healthy
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - Bootstrap
+  /registration:
+    post:
+      consumes:
+      - application/json
+      description: Agents call this endpoint to register and send periodic heartbeats
+        with status information
+      parameters:
+      - description: Agent registration/heartbeat data
+        in: body
+        name: registration
+        required: true
+        schema:
+          $ref: '#/definitions/types.AgentRegistration'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Registration accepted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Client certificate required (when mTLS enabled)
+          schema:
+            type: string
+      summary: Register agent heartbeat
+      tags:
+      - System
+  /version:
+    get:
+      description: Returns the version information of the bootstrap server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Version information
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get server version
+      tags:
+      - Bootstrap
+  /ws:
+    get:
+      description: 'Establishes a WebSocket connection for receiving real-time events.
+        Events include: new_request, request_approved, request_denied, token_generated,
+        new_alert, alert_acknowledged, alert_resolved. Messages are JSON formatted
+        with ''type'' and ''data'' fields.'
+      responses:
+        "101":
+          description: Switching Protocols - WebSocket connection established
+          schema:
+            type: string
+        "400":
+          description: Bad Request - WebSocket upgrade failed
+          schema:
+            type: string
+      summary: WebSocket connection for real-time updates
+      tags:
+      - websocket
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
+tags:
+- description: Agent bootstrap endpoints (no auth required)
+  name: Bootstrap
+- description: Administrative endpoints (auth required)
+  name: Admin
+- description: System and agent management endpoints
+  name: System

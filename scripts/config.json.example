@@ -1,0 +1,54 @@
+{
+  "_comment": "MID Bootstrap Server Configuration",
+
+  "listen_addr": ":8443",
+  "tls_cert": "certs/bootstrap-cert.pem",
+  "tls_key": "certs/bootstrap-key.pem",
+  "tls_min_version": "1.2",
+
+  "vault_addr": "https://192.168.1.161:8200",
+  "vault_ca_cert": "/path/to/vault-ca.pem",
+  "vault_skip_verify": false,
+
+  "_vault_auth_comment": "Auth method: 'token' or 'jwt'",
+  "vault_auth_method": "token",
+
+  "_token_auth_comment": "For token auth, provide token or token_file",
+  "vault_token": "",
+  "vault_token_file": "/path/to/vault-token",
+
+  "_jwt_auth_comment": "For jwt auth, provide role, mount (optional), and jwt_file",
+  "vault_auth_role": "bootstrap-server",
+  "vault_auth_mount": "jwt",
+  "vault_jwt_file": "/var/run/secrets/kubernetes.io/serviceaccount/token",
+
+  "mid_auth_mount": "mid",
+  "mid_role": "vm",
+
+  "request_ttl": 86400000000000,
+  "cleanup_interval": 3600000000000,
+  "default_retry_after": 300,
+
+  "trusted_networks": ["192.168.1.0/24", "10.0.0.0/8"],
+  "auto_approve_from_trust": false,
+  "require_tpm": false,
+
+  "web_enabled": true,
+  "web_path_prefix": "/admin",
+
+  "_web_auth_comment": "Web auth method: 'none' or 'basic' (jwt/oidc planned for future)",
+  "web_auth_method": "basic",
+  "web_auth_realm": "MID Bootstrap Server",
+
+  "_web_auth_users_comment": "Generate password_hash with: echo -n 'password' | sha256sum",
+  "web_auth_users": {
+    "admin": {
+      "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "roles": ["admin"]
+    },
+    "viewer": {
+      "password": "viewerpass",
+      "roles": ["viewer"]
+    }
+  }
+}

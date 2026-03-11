@@ -1,0 +1,2034 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "HTTP Basic Authentication. Click \"Authorize\" button and enter username/password configured in the server.",
+        "title": "MID Bootstrap Server API",
+        "contact": {
+            "name": "MAG Support",
+            "url": "https://github.com/your-org/mid-bootstrap-server"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "0.4.3"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/alert-stats": {
+            "get": {
+                "description": "Returns statistics about alerts",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "alerts"
+                ],
+                "summary": "Get alert statistics",
+                "responses": {
+                    "200": {
+                        "description": "Alert statistics",
+                        "schema": {
+                            "$ref": "#/definitions/types.AlertStats"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/alerts": {
+            "get": {
+                "description": "Returns a list of all alerts, newest first",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "alerts"
+                ],
+                "summary": "List all alerts",
+                "responses": {
+                    "200": {
+                        "description": "List of alerts",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.Alert"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/alerts/{id}": {
+            "get": {
+                "description": "Handles individual alert operations: GET retrieves alert details, POST performs actions (acknowledge, resolve, delete-agent), DELETE removes the alert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "alerts"
+                ],
+                "summary": "Get, update, or delete an alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Alert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Action to perform: acknowledge, resolve, or delete-agent (POST only)",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "description": "Resolution details for resolve action",
+                        "name": "resolution",
+                        "in": "body",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Alert details (GET) or action result (POST/DELETE)",
+                        "schema": {
+                            "$ref": "#/definitions/types.Alert"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Alert not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Handles individual alert operations: GET retrieves alert details, POST performs actions (acknowledge, resolve, delete-agent), DELETE removes the alert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "alerts"
+                ],
+                "summary": "Get, update, or delete an alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Alert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Action to perform: acknowledge, resolve, or delete-agent (POST only)",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "description": "Resolution details for resolve action",
+                        "name": "resolution",
+                        "in": "body",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Alert details (GET) or action result (POST/DELETE)",
+                        "schema": {
+                            "$ref": "#/definitions/types.Alert"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Alert not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/alerts/{id}/{action}": {
+            "post": {
+                "description": "Handles individual alert operations: GET retrieves alert details, POST performs actions (acknowledge, resolve, delete-agent), DELETE removes the alert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "alerts"
+                ],
+                "summary": "Get, update, or delete an alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Alert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Action to perform: acknowledge, resolve, or delete-agent (POST only)",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "description": "Resolution details for resolve action",
+                        "name": "resolution",
+                        "in": "body",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Alert details (GET) or action result (POST/DELETE)",
+                        "schema": {
+                            "$ref": "#/definitions/types.Alert"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Alert not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/approve": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Approves a pending bootstrap request and generates a token for the agent",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Approve a bootstrap request",
+                "parameters": [
+                    {
+                        "description": "Approval details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ApprovalRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Approval confirmation with token info",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or not pending",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Request not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Token generation failed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/audit": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns audit log entries with optional filtering by hostname or event type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get audit log",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "Maximum number of entries to return",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by hostname",
+                        "name": "hostname",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by event type (approval, denial, token_delivered, etc.)",
+                        "name": "event_type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of audit entries",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.AuditEntry"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deny": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Denies a pending bootstrap request with a reason",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Deny a bootstrap request",
+                "parameters": [
+                    {
+                        "description": "Denial details with reason",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.DenialRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Denial confirmation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Request not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/generate-token": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Generates a bootstrap token that operators can use with the agent's local /bootstrap endpoint",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Generate bootstrap token for manual onboarding",
+                "parameters": [
+                    {
+                        "description": "Token generation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ApprovalRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token details including the actual token value",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Request not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Token generation failed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/manual-bootstrap": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Generates a bootstrap token for a machine without requiring a bootstrap request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Generate manual bootstrap token",
+                "parameters": [
+                    {
+                        "description": "Manual bootstrap request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.ManualBootstrapRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Generated bootstrap token",
+                        "schema": {
+                            "$ref": "#/definitions/types.BootstrapToken"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to generate token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/requests": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns bootstrap requests, optionally filtered by status (supports pagination)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List bootstrap requests",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by status (pending, approved, denied)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination (default 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination (default 50, max 500, 0 for all)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of bootstrap requests",
+                        "schema": {
+                            "$ref": "#/definitions/store.PaginatedRequests"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/requests/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get details of a specific request (GET) or delete it (DELETE)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get or delete a bootstrap request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deletion confirmation (DELETE)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Request not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get details of a specific request (GET) or delete it (DELETE)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get or delete a bootstrap request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deletion confirmation (DELETE)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Request not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns statistics about bootstrap requests (total, pending, approved, denied)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get dashboard statistics",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard statistics",
+                        "schema": {
+                            "$ref": "#/definitions/types.DashboardStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/system-stats": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns statistics about registered agents (total, active, CA ready)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Get system statistics",
+                "responses": {
+                    "200": {
+                        "description": "System statistics",
+                        "schema": {
+                            "$ref": "#/definitions/types.SystemStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/systems": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns registered agents with their status information (supports pagination)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "List registered agents",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination (default 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination (default 50, max 500, 0 for all)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of registered agents",
+                        "schema": {
+                            "$ref": "#/definitions/store.PaginatedRegistrations"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/systems/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete an agent registration by ID",
+                "tags": [
+                    "System"
+                ],
+                "summary": "Delete a registration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Agent ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deletion status",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Registration not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vault-status": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns the health status of the connected Vault server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get Vault health status",
+                "responses": {
+                    "200": {
+                        "description": "Vault health status",
+                        "schema": {
+                            "$ref": "#/definitions/vault.VaultHealthStatus"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/bootstrap/{os}/machine": {
+            "post": {
+                "description": "Agents call this endpoint to request bootstrap enrollment. Returns approval status and token if approved.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bootstrap"
+                ],
+                "summary": "Submit bootstrap request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Operating system (linux, darwin, windows)",
+                        "name": "os",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Bootstrap request with machine information",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AutoBootstrapRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bootstrap response with status and optional token",
+                        "schema": {
+                            "$ref": "#/definitions/types.AutoBootstrapResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/types.AutoBootstrapResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Request denied",
+                        "schema": {
+                            "$ref": "#/definitions/types.AutoBootstrapResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns the health status of the server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bootstrap"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "Server is healthy",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/registration": {
+            "post": {
+                "description": "Agents call this endpoint to register and send periodic heartbeats with status information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Register agent heartbeat",
+                "parameters": [
+                    {
+                        "description": "Agent registration/heartbeat data",
+                        "name": "registration",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AgentRegistration"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration accepted",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Client certificate required (when mTLS enabled)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/version": {
+            "get": {
+                "description": "Returns the version information of the bootstrap server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bootstrap"
+                ],
+                "summary": "Get server version",
+                "responses": {
+                    "200": {
+                        "description": "Version information",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ws": {
+            "get": {
+                "description": "Establishes a WebSocket connection for receiving real-time events. Events include: new_request, request_approved, request_denied, token_generated, new_alert, alert_acknowledged, alert_resolved. Messages are JSON formatted with 'type' and 'data' fields.",
+                "tags": [
+                    "websocket"
+                ],
+                "summary": "WebSocket connection for real-time updates",
+                "responses": {
+                    "101": {
+                        "description": "Switching Protocols - WebSocket connection established",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - WebSocket upgrade failed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "server.ManualBootstrapRequest": {
+            "type": "object",
+            "properties": {
+                "arch": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "os": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "store.PaginatedRegistrations": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.AgentRegistration"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "store.PaginatedRequests": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.MachineRequest"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.AgentRegistration": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "description": "Agent identification",
+                    "type": "string"
+                },
+                "agent_version": {
+                    "type": "string"
+                },
+                "arch": {
+                    "type": "string"
+                },
+                "binary_path": {
+                    "type": "string"
+                },
+                "ca_status": {
+                    "description": "SPIFFE/CA status",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.CAStatus"
+                        }
+                    ]
+                },
+                "cert_identity": {
+                    "description": "Identity from client certificate (CN or SPIFFE ID)",
+                    "type": "string"
+                },
+                "cert_verified": {
+                    "description": "mTLS verification",
+                    "type": "boolean"
+                },
+                "client_ip": {
+                    "description": "Server-side metadata",
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "ip_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "last_seen_at": {
+                    "type": "string"
+                },
+                "mac_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "os": {
+                    "description": "System information",
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                },
+                "pow_status": {
+                    "description": "\"ok\", \"warning\", \"failed\", \"disabled\"",
+                    "type": "string"
+                },
+                "pow_verification": {
+                    "description": "Verification result (server-side)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.PoWVerificationResult"
+                        }
+                    ]
+                },
+                "received_at": {
+                    "type": "string"
+                },
+                "register_count": {
+                    "description": "Number of registrations received",
+                    "type": "integer"
+                },
+                "secure_heartbeat": {
+                    "description": "PoW (Proof of Work) anti-spoofing - advisory mode",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.SecureHeartbeat"
+                        }
+                    ]
+                },
+                "timestamp": {
+                    "description": "Timestamp from agent",
+                    "type": "string"
+                },
+                "uptime_seconds": {
+                    "description": "Runtime info",
+                    "type": "integer"
+                },
+                "working_dir": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.Alert": {
+            "type": "object",
+            "properties": {
+                "acknowledged": {
+                    "description": "Acknowledgement",
+                    "type": "boolean"
+                },
+                "acknowledged_at": {
+                    "type": "string"
+                },
+                "acknowledged_by": {
+                    "type": "string"
+                },
+                "agent_id": {
+                    "description": "Agent information",
+                    "type": "string"
+                },
+                "agent_version": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "details": {
+                    "description": "JSON for extra info",
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_seen_at": {
+                    "description": "For stale agent alerts",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Alert details",
+                    "type": "string"
+                },
+                "new_version": {
+                    "type": "string"
+                },
+                "old_version": {
+                    "description": "For version change alerts",
+                    "type": "string"
+                },
+                "resolution": {
+                    "description": "e.g., \"deleted_old_version\", \"agent_recovered\"",
+                    "type": "string"
+                },
+                "resolved": {
+                    "description": "Resolution",
+                    "type": "boolean"
+                },
+                "resolved_at": {
+                    "type": "string"
+                },
+                "resolved_by": {
+                    "type": "string"
+                },
+                "severity": {
+                    "$ref": "#/definitions/types.AlertSeverity"
+                },
+                "stale_duration_min": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/types.AlertType"
+                }
+            }
+        },
+        "types.AlertSeverity": {
+            "type": "string",
+            "enum": [
+                "info",
+                "warning",
+                "critical"
+            ],
+            "x-enum-varnames": [
+                "AlertSeverityInfo",
+                "AlertSeverityWarning",
+                "AlertSeverityCritical"
+            ]
+        },
+        "types.AlertStats": {
+            "type": "object",
+            "properties": {
+                "stale_agent_count": {
+                    "type": "integer"
+                },
+                "total_alerts": {
+                    "type": "integer"
+                },
+                "unacknowledged_count": {
+                    "type": "integer"
+                },
+                "version_change_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.AlertType": {
+            "type": "string",
+            "enum": [
+                "stale_agent",
+                "version_change"
+            ],
+            "x-enum-comments": {
+                "AlertTypeStaleAgent": "Agent hasn't sent heartbeat in configured time",
+                "AlertTypeVersionChange": "Agent version changed (old version entry)"
+            },
+            "x-enum-varnames": [
+                "AlertTypeStaleAgent",
+                "AlertTypeVersionChange"
+            ]
+        },
+        "types.ApprovalRequest": {
+            "type": "object",
+            "properties": {
+                "approved_by": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.AuditEntry": {
+            "type": "object",
+            "properties": {
+                "arch": {
+                    "type": "string"
+                },
+                "client_ip": {
+                    "type": "string"
+                },
+                "details": {
+                    "description": "JSON string for extra info",
+                    "type": "string"
+                },
+                "event_type": {
+                    "$ref": "#/definitions/types.AuditEventType"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ip_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mac_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "os": {
+                    "type": "string"
+                },
+                "performed_by": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "token_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.AuditEventType": {
+            "type": "string",
+            "enum": [
+                "approval",
+                "denial",
+                "token_delivered",
+                "reset_to_pending",
+                "auto_approval",
+                "manual_bootstrap"
+            ],
+            "x-enum-varnames": [
+                "AuditEventApproval",
+                "AuditEventDenial",
+                "AuditEventTokenDelivered",
+                "AuditEventResetToPending",
+                "AuditEventAutoApproval",
+                "AuditEventManualBootstrap"
+            ]
+        },
+        "types.AutoBootstrapRequest": {
+            "type": "object",
+            "properties": {
+                "agent_version": {
+                    "type": "string"
+                },
+                "arch": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "ip_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mac_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "os": {
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                },
+                "tpm_attestation": {
+                    "$ref": "#/definitions/types.TPMAttestation"
+                },
+                "uptime_seconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.AutoBootstrapResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "nonce": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "provisioning_window": {
+                    "$ref": "#/definitions/types.ProvisioningWindow"
+                },
+                "queue_position": {
+                    "type": "integer"
+                },
+                "retry_after_seconds": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "token": {
+                    "$ref": "#/definitions/types.BootstrapToken"
+                }
+            }
+        },
+        "types.BootstrapToken": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "token_id": {
+                    "type": "string"
+                },
+                "ttl": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.CAStatus": {
+            "type": "object",
+            "properties": {
+                "common_name": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "issued_at": {
+                    "type": "string"
+                },
+                "last_renewal_err": {
+                    "type": "string"
+                },
+                "ready": {
+                    "type": "boolean"
+                },
+                "remaining_ttl": {
+                    "type": "string"
+                },
+                "renewal_eta": {
+                    "type": "string"
+                },
+                "renewal_method": {
+                    "type": "string"
+                },
+                "serial_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.DashboardStats": {
+            "type": "object",
+            "properties": {
+                "approved_requests": {
+                    "type": "integer"
+                },
+                "denied_requests": {
+                    "type": "integer"
+                },
+                "expired_requests": {
+                    "type": "integer"
+                },
+                "pending_requests": {
+                    "type": "integer"
+                },
+                "total_requests": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.DenialRequest": {
+            "type": "object",
+            "properties": {
+                "denied_by": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.MachineRequest": {
+            "type": "object",
+            "properties": {
+                "agent_version": {
+                    "type": "string"
+                },
+                "approved_at": {
+                    "type": "string"
+                },
+                "approved_by": {
+                    "description": "Approval tracking",
+                    "type": "string"
+                },
+                "arch": {
+                    "type": "string"
+                },
+                "client_ip": {
+                    "description": "Client tracking",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "When the request was received",
+                    "type": "string"
+                },
+                "denial_reason": {
+                    "type": "string"
+                },
+                "denied_at": {
+                    "type": "string"
+                },
+                "denied_by": {
+                    "type": "string"
+                },
+                "has_tpm": {
+                    "description": "TPM attestation (if provided)",
+                    "type": "boolean"
+                },
+                "hostname": {
+                    "description": "Machine identification",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Unique request ID",
+                    "type": "string"
+                },
+                "ip_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "last_nonce": {
+                    "description": "TPM challenge nonce (for verifying attestation freshness)",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "last_seen_at": {
+                    "type": "string"
+                },
+                "mac_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "os": {
+                    "description": "System information",
+                    "type": "string"
+                },
+                "os_version": {
+                    "type": "string"
+                },
+                "request_count": {
+                    "description": "Number of times this machine has called",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "Request status",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.RequestStatus"
+                        }
+                    ]
+                },
+                "status_reason": {
+                    "type": "string"
+                },
+                "token": {
+                    "description": "Token (populated after approval)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.BootstrapToken"
+                        }
+                    ]
+                },
+                "tpm_attestation": {
+                    "$ref": "#/definitions/types.TPMAttestation"
+                },
+                "updated_at": {
+                    "description": "Last status update",
+                    "type": "string"
+                },
+                "uptime_seconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.PoWSystemMetrics": {
+            "type": "object",
+            "properties": {
+                "boot_id": {
+                    "type": "string"
+                },
+                "boot_time": {
+                    "type": "integer"
+                },
+                "disk_serial": {
+                    "type": "string"
+                },
+                "dmi_serial": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "kernel_version": {
+                    "type": "string"
+                },
+                "mac_addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "machine_id": {
+                    "type": "string"
+                },
+                "product_uuid": {
+                    "type": "string"
+                },
+                "uptime_seconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.PoWVerificationResult": {
+            "type": "object",
+            "properties": {
+                "chain_valid": {
+                    "type": "boolean"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "metrics_valid": {
+                    "type": "boolean"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "witness_count": {
+                    "type": "integer"
+                },
+                "witness_threshold": {
+                    "type": "integer"
+                },
+                "work_valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "types.ProvisioningWindow": {
+            "type": "object",
+            "properties": {
+                "end": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.RequestStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "approved",
+                "denied",
+                "expired",
+                "error"
+            ],
+            "x-enum-varnames": [
+                "StatusPending",
+                "StatusApproved",
+                "StatusDenied",
+                "StatusExpired",
+                "StatusError"
+            ]
+        },
+        "types.SecureHeartbeat": {
+            "type": "object",
+            "properties": {
+                "agent_id": {
+                    "description": "Identity",
+                    "type": "string"
+                },
+                "difficulty": {
+                    "description": "Required leading zero bits",
+                    "type": "integer"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "merkle_root": {
+                    "description": "Root of all previous heartbeats",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "nonce": {
+                    "description": "Proof of work",
+                    "type": "integer"
+                },
+                "previous_hash": {
+                    "description": "Hash of previous heartbeat",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "public_key": {
+                    "description": "Public key for signature verification",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "sequence": {
+                    "description": "Proof chain - links to previous heartbeats",
+                    "type": "integer"
+                },
+                "signature": {
+                    "description": "Signature over all above fields",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "system_metrics": {
+                    "description": "Hardware binding",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.PoWSystemMetrics"
+                        }
+                    ]
+                },
+                "timestamp": {
+                    "description": "Unix timestamp",
+                    "type": "integer"
+                },
+                "tpm_quote": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "witnesses": {
+                    "description": "Subnet witnesses",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.WitnessStatement"
+                    }
+                },
+                "work_hash": {
+                    "description": "Hash meeting difficulty",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "types.SystemStats": {
+            "type": "object",
+            "properties": {
+                "active_agents": {
+                    "description": "Seen in last 5 minutes",
+                    "type": "integer"
+                },
+                "ca_ready_agents": {
+                    "description": "Agents with CA ready",
+                    "type": "integer"
+                },
+                "total_agents": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.TPMAttestation": {
+            "type": "object",
+            "properties": {
+                "ak_certificate": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "ak_public": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "ak_public_pem": {
+                    "description": "PEM format (preferred for verification)",
+                    "type": "string"
+                },
+                "ek_certificate": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "ek_public": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "nonce": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "pcr_digest": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "pcrs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "quote": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "signature": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "verified": {
+                    "type": "boolean"
+                },
+                "verify_errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "types.WitnessStatement": {
+            "type": "object",
+            "properties": {
+                "nonce": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "signature": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "subject_id": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
+                "witness_addr": {
+                    "type": "string"
+                },
+                "witness_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "vault.VaultHealthStatus": {
+            "type": "object",
+            "properties": {
+                "cluster_name": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "healthy": {
+                    "type": "boolean"
+                },
+                "initialized": {
+                    "type": "boolean"
+                },
+                "last_checked": {
+                    "type": "string"
+                },
+                "response_time_ms": {
+                    "type": "integer"
+                },
+                "sealed": {
+                    "type": "boolean"
+                },
+                "standby": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        }
+    },
+    "tags": [
+        {
+            "description": "Agent bootstrap endpoints (no auth required)",
+            "name": "Bootstrap"
+        },
+        {
+            "description": "Administrative endpoints (auth required)",
+            "name": "Admin"
+        },
+        {
+            "description": "System and agent management endpoints",
+            "name": "System"
+        }
+    ]
+}
