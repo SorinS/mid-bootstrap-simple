@@ -219,7 +219,7 @@ func (s *Server) Start() error {
 
 	log.Printf("Starting bootstrap server on %s", s.config.ListenAddr)
 
-	if s.config.TLSCert != "" && s.config.TLSKey != "" {
+	if s.config.TLSEnabled() {
 		// Build TLS configuration
 		tlsConfig := &tls.Config{
 			MinVersion: tls.VersionTLS12,

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -12,6 +13,9 @@ import (
 	"mid-bootstrap-server.git/internal/config"
 	"mid-bootstrap-server.git/internal/server"
 )
+
+var Version string
+var BuildTime string
 
 // @title MID Bootstrap Server API
 // @version 0.4.3
@@ -38,6 +42,7 @@ import (
 
 func main() {
 	// Parse command line flags
+	showVersion := flag.Bool("v", false, "Version")
 	configPath := flag.String("config", "", "Path to configuration file (recommended)")
 	listenAddr := flag.String("listen", ":8443", "Listen address")
 	tlsCert := flag.String("tls-cert", "", "Path to TLS certificate file")
@@ -51,10 +56,17 @@ func main() {
 	midRole := flag.String("mid-role", "vm", "Vault MID role for token generation")
 	bootstrapType := flag.String("bootstrap-type", "", "Bootstrap type: certificate (default, MID auth) or token (Vault JWT login)")
 	vaultJWTSource := flag.String("vault-jwt-source", "", "JWT source URL for token bootstrap: file:///path or http://host:port/path")
+	useTLS := flag.Bool("use-tls", true, "Enable TLS (set to false when behind a reverse proxy)")
+	vaultUseTLS := flag.Bool("vault-use-tls", true, "Enable TLS for Vault connection (set to false for non-TLS Vault)")
 	flag.Parse()
 
 	var cfg *config.Config
 	var err error
+
+	if *showVersion {
+		fmt.Printf("MID Bootstrap Server Version: %s, build: %s\n", Version, BuildTime)
+		return
+	}
 
 	// Load configuration
 	if *configPath != "" {
@@ -78,6 +90,12 @@ func main() {
 		if *vaultJWTSource != "" {
 			cfg.VaultJWTSource = *vaultJWTSource
 		}
+		if !*useTLS {
+			cfg.UseTLS = useTLS
+		}
+		if !*vaultUseTLS {
+			cfg.VaultUseTLS = vaultUseTLS
+		}
 	} else {
 		// Use command line flags and defaults
 		cfg = config.DefaultConfig()
@@ -99,6 +117,8 @@ func main() {
 		}
 		cfg.MIDAuthMount = *midAuthMount
 		cfg.MIDRole = *midRole
+		cfg.UseTLS = useTLS
+		cfg.VaultUseTLS = vaultUseTLS
 		if *bootstrapType != "" {
 			cfg.BootstrapType = *bootstrapType
 		}
@@ -122,12 +142,12 @@ func main() {
 
 	log.Printf("Starting MID Bootstrap Server")
 	log.Printf("  Listen: %s", cfg.ListenAddr)
-	if cfg.TLSCert != "" && cfg.TLSKey != "" {
+	if cfg.TLSEnabled() {
 		log.Printf("  TLS: enabled (cert=%s, key=%s)", cfg.TLSCert, cfg.TLSKey)
 	} else {
-		log.Printf("  TLS: disabled (plain HTTP)")
+		log.Printf("  TLS: disabled (plain HTTP, reverse proxy mode)")
 	}
-	log.Printf("  Vault: %s", cfg.VaultAddr)
+	log.Printf("  Vault: %s (TLS: %v)", cfg.VaultAddr, cfg.VaultTLSEnabled())
 	log.Printf("  Vault Auth: %s", cfg.VaultAuthMethod)
 	if cfg.VaultAuthMethod == "jwt" {
 		log.Printf("  Vault Auth Role: %s", cfg.VaultAuthRole)

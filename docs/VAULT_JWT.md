@@ -259,7 +259,7 @@ bao kv get -mount=secret myapp
 
 ```
 ┌─────────────┐                 ┌────────────────────┐                 ┌─────────────┐
-│    Agent     │  bootstrap req │  mid-bootstrap     │                 │   OpenBao   │
+│    Agent    │  bootstrap req  │  mid-bootstrap     │                 │   OpenBao   │
 │             │ ───────────────→│  simple            │                 │   (Vault)   │
 │             │                 │                    │                 │             │
 │             │                 │  Cache hit?        │                 │             │

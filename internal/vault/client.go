@@ -34,29 +34,36 @@ type Client struct {
 
 // NewClient creates a new Vault client
 func NewClient(cfg *config.Config) (*Client, error) {
-	// Create TLS config
-	tlsConfig := &tls.Config{
-		MinVersion:         tls.VersionTLS12,
-		InsecureSkipVerify: cfg.VaultSkipVerify,
-	}
-
-	// Load custom CA if provided
-	if cfg.VaultCACert != "" {
-		caCert, err := os.ReadFile(cfg.VaultCACert)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read Vault CA cert: %w", err)
+	var httpClient *http.Client
+	if cfg.VaultTLSEnabled() {
+		// Create TLS config
+		tlsConfig := &tls.Config{
+			MinVersion:         tls.VersionTLS12,
+			InsecureSkipVerify: cfg.VaultSkipVerify,
 		}
-		tlsConfig.RootCAs = x509.NewCertPool()
-		if !tlsConfig.RootCAs.AppendCertsFromPEM(caCert) {
-			return nil, fmt.Errorf("failed to parse Vault CA cert")
-		}
-	}
 
-	httpClient := &http.Client{
-		Timeout: 30 * time.Second,
-		Transport: &http.Transport{
-			TLSClientConfig: tlsConfig,
-		},
+		// Load custom CA if provided
+		if cfg.VaultCACert != "" {
+			caCert, err := os.ReadFile(cfg.VaultCACert)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read Vault CA cert: %w", err)
+			}
+			tlsConfig.RootCAs = x509.NewCertPool()
+			if !tlsConfig.RootCAs.AppendCertsFromPEM(caCert) {
+				return nil, fmt.Errorf("failed to parse Vault CA cert")
+			}
+		}
+
+		httpClient = &http.Client{
+			Timeout: 30 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: tlsConfig,
+			},
+		}
+	} else {
+		httpClient = &http.Client{
+			Timeout: 30 * time.Second,
+		}
 	}
 
 	client := &Client{

@@ -12,12 +12,14 @@ import (
 type Config struct {
 	// Server settings
 	ListenAddr    string `json:"listen_addr"`    // e.g., ":8443"
+	UseTLS        *bool  `json:"use_tls"`        // Enable TLS (default: true). Set to false when behind a reverse proxy.
 	TLSCert       string `json:"tls_cert"`       // Path to TLS certificate
 	TLSKey        string `json:"tls_key"`        // Path to TLS private key
 	TLSMinVersion string `json:"tls_min_version"` // Minimum TLS version: "1.2" or "1.3"
 
 	// Vault connection settings
 	VaultAddr       string `json:"vault_addr"`                  // e.g., "https://vault:8200"
+	VaultUseTLS     *bool  `json:"vault_use_tls"`               // Enable TLS for Vault connection (default: true). When false, vault_ca_cert and vault_skip_verify are ignored.
 	VaultCACert     string `json:"vault_ca_cert,omitempty"`     // Path to Vault CA cert
 	VaultSkipVerify bool   `json:"vault_skip_verify,omitempty"` // Skip TLS verification
 	VaultNamespace  string `json:"vault_namespace,omitempty"`   // Vault namespace (enterprise)
@@ -111,6 +113,24 @@ type ProvisioningWindowConfig struct {
 	Days     []string `json:"days"`     // e.g., ["Monday", "Tuesday", ...]
 }
 
+// TLSEnabled returns whether TLS should be used.
+// Defaults to true if UseTLS is not explicitly set.
+func (c *Config) TLSEnabled() bool {
+	if c.UseTLS == nil {
+		return true
+	}
+	return *c.UseTLS
+}
+
+// VaultTLSEnabled returns whether TLS should be used for the Vault connection.
+// Defaults to true if VaultUseTLS is not explicitly set.
+func (c *Config) VaultTLSEnabled() bool {
+	if c.VaultUseTLS == nil {
+		return true
+	}
+	return *c.VaultUseTLS
+}
+
 // DefaultConfig returns a configuration with sensible defaults
 func DefaultConfig() *Config {
 	return &Config{
@@ -187,6 +207,9 @@ func (c *Config) Validate() error {
 	}
 
 	// Validate TLS settings
+	if c.TLSEnabled() && (c.TLSCert == "" || c.TLSKey == "") {
+		return fmt.Errorf("tls_cert and tls_key are required when use_tls is true (set use_tls to false for reverse proxy)")
+	}
 	if c.TLSMinVersion != "" && c.TLSMinVersion != "1.2" && c.TLSMinVersion != "1.3" {
 		return fmt.Errorf("tls_min_version must be '1.2' or '1.3'")
 	}
