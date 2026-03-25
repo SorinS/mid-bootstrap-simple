@@ -35,7 +35,7 @@ type Client struct {
 // NewClient creates a new Vault client
 func NewClient(cfg *config.Config) (*Client, error) {
 	var httpClient *http.Client
-	if cfg.VaultTLSEnabled() {
+	if cfg.VaultUseTLS {
 		// Create TLS config
 		tlsConfig := &tls.Config{
 			MinVersion:         tls.VersionTLS12,
@@ -78,15 +78,16 @@ func NewClient(cfg *config.Config) (*Client, error) {
 		if cfg.VaultTokenFile != "" && cfg.VaultToken == "" {
 			tokenData, err := os.ReadFile(cfg.VaultTokenFile)
 			if err != nil {
-				return nil, fmt.Errorf("failed to read vault token file: %w", err)
+				log.Printf("WARNING: failed to read vault token file %q: %v (server will start but Vault operations will fail)", cfg.VaultTokenFile, err)
+			} else {
+				client.token = strings.TrimSpace(string(tokenData))
 			}
-			client.token = strings.TrimSpace(string(tokenData))
 		} else {
 			client.token = cfg.VaultToken
 		}
 	case "jwt":
 		if err := client.authenticateJWT(); err != nil {
-			return nil, fmt.Errorf("JWT authentication failed: %w", err)
+			log.Printf("WARNING: JWT authentication failed: %v (server will start but Vault operations will fail)", err)
 		}
 	default:
 		return nil, fmt.Errorf("unsupported auth method: %s", cfg.VaultAuthMethod)

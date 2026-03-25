@@ -11,26 +11,26 @@ import (
 // Config holds all server configuration
 type Config struct {
 	// Server settings
-	ListenAddr    string `json:"listen_addr"`    // e.g., ":8443"
-	UseTLS        *bool  `json:"use_tls"`        // Enable TLS (default: true). Set to false when behind a reverse proxy.
-	TLSCert       string `json:"tls_cert"`       // Path to TLS certificate
-	TLSKey        string `json:"tls_key"`        // Path to TLS private key
+	ListenAddr    string `json:"listen_addr"`     // e.g., ":8443"
+	UseTLS        bool   `json:"use_tls"`         // Enable TLS (default: true). Set to false when behind a reverse proxy.
+	TLSCert       string `json:"tls_cert"`        // Path to TLS certificate
+	TLSKey        string `json:"tls_key"`         // Path to TLS private key
 	TLSMinVersion string `json:"tls_min_version"` // Minimum TLS version: "1.2" or "1.3"
 
 	// Vault connection settings
 	VaultAddr       string `json:"vault_addr"`                  // e.g., "https://vault:8200"
-	VaultUseTLS     *bool  `json:"vault_use_tls"`               // Enable TLS for Vault connection (default: true). When false, vault_ca_cert and vault_skip_verify are ignored.
+	VaultUseTLS     bool   `json:"vault_use_tls"`               // Enable TLS for Vault connection (default: true). When false, vault_ca_cert and vault_skip_verify are ignored.
 	VaultCACert     string `json:"vault_ca_cert,omitempty"`     // Path to Vault CA cert
 	VaultSkipVerify bool   `json:"vault_skip_verify,omitempty"` // Skip TLS verification
 	VaultNamespace  string `json:"vault_namespace,omitempty"`   // Vault namespace (enterprise)
 
 	// Vault authentication settings
-	VaultAuthMethod string `json:"vault_auth_method"`           // Auth method: "token" or "jwt"
-	VaultAuthRole   string `json:"vault_auth_role,omitempty"`   // Role for JWT auth (required for jwt)
-	VaultAuthMount  string `json:"vault_auth_mount,omitempty"`  // Auth mount path (default: "jwt" for jwt auth)
-	VaultToken      string `json:"vault_token,omitempty"`       // Static token (for token auth)
-	VaultTokenFile  string `json:"vault_token_file,omitempty"`  // Path to token file (for token auth)
-	VaultJWTFile    string `json:"vault_jwt_file,omitempty"`    // Path to JWT file (for jwt auth)
+	VaultAuthMethod string `json:"vault_auth_method"`          // Auth method: "token" or "jwt"
+	VaultAuthRole   string `json:"vault_auth_role,omitempty"`  // Role for JWT auth (required for jwt)
+	VaultAuthMount  string `json:"vault_auth_mount,omitempty"` // Auth mount path (default: "jwt" for jwt auth)
+	VaultToken      string `json:"vault_token,omitempty"`      // Static token (for token auth)
+	VaultTokenFile  string `json:"vault_token_file,omitempty"` // Path to token file (for token auth)
+	VaultJWTFile    string `json:"vault_jwt_file,omitempty"`   // Path to JWT file (for jwt auth)
 
 	// Vault MID auth settings (for generating bootstrap tokens - used when bootstrap_type is "certificate")
 	MIDAuthMount string `json:"mid_auth_mount"` // MID auth mount path (e.g., "mid")
@@ -44,16 +44,16 @@ type Config struct {
 	VaultHealthCheckInterval time.Duration `json:"vault_health_check_interval,omitempty"` // How often to check Vault health (default: 20s, 0 to disable)
 
 	// Request handling
-	RequestTTL         time.Duration `json:"request_ttl"`          // How long to keep pending requests
-	CleanupInterval    time.Duration `json:"cleanup_interval"`     // How often to clean expired requests
-	DefaultRetryAfter  int           `json:"default_retry_after"`  // Seconds to suggest for retry
+	RequestTTL        time.Duration `json:"request_ttl"`         // How long to keep pending requests
+	CleanupInterval   time.Duration `json:"cleanup_interval"`    // How often to clean expired requests
+	DefaultRetryAfter int           `json:"default_retry_after"` // Seconds to suggest for retry
 
 	// Security settings
-	TrustedNetworks      []string `json:"trusted_networks,omitempty"`       // CIDRs to auto-approve
-	RequireTPM           bool     `json:"require_tpm,omitempty"`            // Require TPM attestation
+	TrustedNetworks      []string `json:"trusted_networks,omitempty"`        // CIDRs to auto-approve
+	RequireTPM           bool     `json:"require_tpm,omitempty"`             // Require TPM attestation
 	AutoApproveFromTrust bool     `json:"auto_approve_from_trust,omitempty"` // Auto-approve trusted networks
-	AutoApproveTPM       bool     `json:"auto_approve_tpm,omitempty"`       // Auto-approve when TPM attestation is verified
-	AutoApproveDNS       bool     `json:"auto_approve_dns,omitempty"`       // Auto-approve when reverse DNS matches hostname
+	AutoApproveTPM       bool     `json:"auto_approve_tpm,omitempty"`        // Auto-approve when TPM attestation is verified
+	AutoApproveDNS       bool     `json:"auto_approve_dns,omitempty"`        // Auto-approve when reverse DNS matches hostname
 
 	// Provisioning windows (optional)
 	ProvisioningWindows []ProvisioningWindowConfig `json:"provisioning_windows,omitempty"`
@@ -75,9 +75,9 @@ type Config struct {
 
 	// JWT authentication settings (used when web_auth_method includes "jwt")
 	// Key source (pick one): jwt_secret, jwt_public_key, or jwt_jwks_addr
-	JWTSecret     string `json:"jwt_secret,omitempty"`      // HMAC secret for HS256/HS384/HS512
-	JWTPublicKey  string `json:"jwt_public_key,omitempty"`  // Path to PEM public key file for RS*/ES*/PS*
-	JWTJWKSAddr   string `json:"jwt_jwks_addr,omitempty"`   // URL to JWKS endpoint for dynamic key retrieval
+	JWTSecret    string `json:"jwt_secret,omitempty"`     // HMAC secret for HS256/HS384/HS512
+	JWTPublicKey string `json:"jwt_public_key,omitempty"` // Path to PEM public key file for RS*/ES*/PS*
+	JWTJWKSAddr  string `json:"jwt_jwks_addr,omitempty"`  // URL to JWKS endpoint for dynamic key retrieval
 	// Token validation
 	JWTIssuer       string   `json:"jwt_issuer,omitempty"`        // Expected "iss" claim (optional)
 	JWTAudience     string   `json:"jwt_audience,omitempty"`      // Expected "aud" claim (optional)
@@ -96,6 +96,16 @@ type Config struct {
 	// Alert settings
 	AlertStaleAgentMinutes int `json:"alert_stale_agent_minutes,omitempty"` // Minutes before agent is considered stale (default: 10)
 	AlertCheckInterval     int `json:"alert_check_interval,omitempty"`      // Interval in seconds to check for stale agents (default: 60)
+
+	// vSphere integration (optional, for vTPM EK binding anti-proxy verification)
+	VSphereAddr         string        `json:"vsphere_addr,omitempty"`          // vCenter address (e.g., "vcenter.example.com"). Empty disables vSphere.
+	VSphereUsername     string        `json:"vsphere_username,omitempty"`      // vCenter username
+	VSpherePasswordFile string        `json:"vsphere_password_file,omitempty"` // Path to file containing vCenter password
+	VSphereDatacenter   string        `json:"vsphere_datacenter,omitempty"`    // Datacenter to search (empty = default)
+	VSphereSkipVerify   bool          `json:"vsphere_skip_verify,omitempty"`   // Skip TLS verification for vCenter
+	VSphereEKBinding    bool          `json:"vsphere_ek_binding,omitempty"`    // Enable EK fingerprint verification for vSphere VMs
+	VSphereRequireEK    bool          `json:"vsphere_require_ek,omitempty"`    // Fail attestation if EK data unavailable from vSphere
+	VSphereCacheTTL     time.Duration `json:"vsphere_cache_ttl,omitempty"`     // Cache TTL for VM lookups (default: 5m)
 }
 
 // WebAuthUser holds credentials for a web admin user
@@ -113,29 +123,13 @@ type ProvisioningWindowConfig struct {
 	Days     []string `json:"days"`     // e.g., ["Monday", "Tuesday", ...]
 }
 
-// TLSEnabled returns whether TLS should be used.
-// Defaults to true if UseTLS is not explicitly set.
-func (c *Config) TLSEnabled() bool {
-	if c.UseTLS == nil {
-		return true
-	}
-	return *c.UseTLS
-}
-
-// VaultTLSEnabled returns whether TLS should be used for the Vault connection.
-// Defaults to true if VaultUseTLS is not explicitly set.
-func (c *Config) VaultTLSEnabled() bool {
-	if c.VaultUseTLS == nil {
-		return true
-	}
-	return *c.VaultUseTLS
-}
-
 // DefaultConfig returns a configuration with sensible defaults
 func DefaultConfig() *Config {
 	return &Config{
 		ListenAddr:               ":8443",
+		UseTLS:                   true,
 		TLSMinVersion:            "1.2",
+		VaultUseTLS:              true,
 		VaultAddr:                "http://127.0.0.1:8200",
 		VaultAuthMethod:          "token",
 		MIDAuthMount:             "mid",
@@ -207,7 +201,7 @@ func (c *Config) Validate() error {
 	}
 
 	// Validate TLS settings
-	if c.TLSEnabled() && (c.TLSCert == "" || c.TLSKey == "") {
+	if c.UseTLS && (c.TLSCert == "" || c.TLSKey == "") {
 		return fmt.Errorf("tls_cert and tls_key are required when use_tls is true (set use_tls to false for reverse proxy)")
 	}
 	if c.TLSMinVersion != "" && c.TLSMinVersion != "1.2" && c.TLSMinVersion != "1.3" {
@@ -276,6 +270,19 @@ func (c *Config) Validate() error {
 	// mTLS for registration requires CA cert
 	if c.RegistrationRequireMTLS && c.RegistrationCACert == "" {
 		return fmt.Errorf("registration_ca_cert is required when registration_require_mtls is true")
+	}
+
+	// vSphere integration validation
+	if c.VSphereAddr != "" {
+		if c.VSphereUsername == "" {
+			return fmt.Errorf("vsphere_username is required when vsphere_addr is set")
+		}
+		if c.VSpherePasswordFile == "" {
+			return fmt.Errorf("vsphere_password_file is required when vsphere_addr is set")
+		}
+	}
+	if c.VSphereEKBinding && c.VSphereAddr == "" {
+		return fmt.Errorf("vsphere_addr is required when vsphere_ek_binding is enabled")
 	}
 
 	return nil

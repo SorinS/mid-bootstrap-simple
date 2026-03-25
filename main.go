@@ -41,98 +41,118 @@ var BuildTime string
 // @tag.description System and agent management endpoints
 
 func main() {
-	// Parse command line flags
-	showVersion := flag.Bool("v", false, "Version")
+	showVersion := flag.Bool("v", false, "Show version")
 	configPath := flag.String("config", "", "Path to configuration file (recommended)")
-	listenAddr := flag.String("listen", ":8443", "Listen address")
-	tlsCert := flag.String("tls-cert", "", "Path to TLS certificate file")
-	tlsKey := flag.String("tls-key", "", "Path to TLS private key file")
-	vaultAddr := flag.String("vault-addr", "", "Vault server address")
-	vaultAuthMethod := flag.String("vault-auth-method", "token", "Vault auth method: token or jwt")
-	vaultToken := flag.String("vault-token", "", "Vault token (for token auth)")
-	vaultAuthRole := flag.String("vault-auth-role", "", "Vault auth role (required for jwt auth)")
-	vaultAuthMount := flag.String("vault-auth-mount", "", "Vault auth mount path (default: jwt for jwt auth)")
-	midAuthMount := flag.String("mid-auth-mount", "mid", "Vault MID auth mount path")
-	midRole := flag.String("mid-role", "vm", "Vault MID role for token generation")
-	bootstrapType := flag.String("bootstrap-type", "", "Bootstrap type: certificate (default, MID auth) or token (Vault JWT login)")
-	vaultJWTSource := flag.String("vault-jwt-source", "", "JWT source URL for token bootstrap: file:///path or http://host:port/path")
-	useTLS := flag.Bool("use-tls", true, "Enable TLS (set to false when behind a reverse proxy)")
-	vaultUseTLS := flag.Bool("vault-use-tls", true, "Enable TLS for Vault connection (set to false for non-TLS Vault)")
-	flag.Parse()
 
-	var cfg *config.Config
-	var err error
+	// Start with defaults, then layer config file, then CLI flags
+	cfg := config.DefaultConfig()
+
+	// Server settings
+	flag.StringVar(&cfg.ListenAddr, "listen", cfg.ListenAddr, "Listen address")
+	flag.BoolVar(&cfg.UseTLS, "use-tls", cfg.UseTLS, "Enable TLS (set to false when behind a reverse proxy)")
+	flag.StringVar(&cfg.TLSCert, "tls-cert", cfg.TLSCert, "Path to TLS certificate file")
+	flag.StringVar(&cfg.TLSKey, "tls-key", cfg.TLSKey, "Path to TLS private key file")
+	flag.StringVar(&cfg.TLSMinVersion, "tls-min-version", cfg.TLSMinVersion, "Minimum TLS version: 1.2 or 1.3")
+
+	// Vault connection settings
+	flag.StringVar(&cfg.VaultAddr, "vault-addr", cfg.VaultAddr, "Vault server address")
+	flag.BoolVar(&cfg.VaultUseTLS, "vault-use-tls", cfg.VaultUseTLS, "Enable TLS for Vault connection")
+	flag.StringVar(&cfg.VaultCACert, "vault-ca-cert", cfg.VaultCACert, "Path to Vault CA certificate")
+	flag.BoolVar(&cfg.VaultSkipVerify, "vault-skip-verify", cfg.VaultSkipVerify, "Skip TLS verification for Vault")
+	flag.StringVar(&cfg.VaultNamespace, "vault-namespace", cfg.VaultNamespace, "Vault namespace (enterprise)")
+
+	// Vault authentication settings
+	flag.StringVar(&cfg.VaultAuthMethod, "vault-auth-method", cfg.VaultAuthMethod, "Vault auth method: token or jwt")
+	flag.StringVar(&cfg.VaultToken, "vault-token", cfg.VaultToken, "Vault token (for token auth)")
+	flag.StringVar(&cfg.VaultTokenFile, "vault-token-file", cfg.VaultTokenFile, "Path to Vault token file (for token auth)")
+	flag.StringVar(&cfg.VaultAuthRole, "vault-auth-role", cfg.VaultAuthRole, "Vault auth role (required for jwt auth)")
+	flag.StringVar(&cfg.VaultAuthMount, "vault-auth-mount", cfg.VaultAuthMount, "Vault auth mount path (default: jwt)")
+	flag.StringVar(&cfg.VaultJWTFile, "vault-jwt-file", cfg.VaultJWTFile, "Path to JWT file (for jwt auth)")
+
+	// MID auth settings
+	flag.StringVar(&cfg.MIDAuthMount, "mid-auth-mount", cfg.MIDAuthMount, "Vault MID auth mount path")
+	flag.StringVar(&cfg.MIDRole, "mid-role", cfg.MIDRole, "Vault MID role for token generation")
+
+	// Bootstrap mode settings
+	flag.StringVar(&cfg.BootstrapType, "bootstrap-type", cfg.BootstrapType, "Bootstrap type: certificate (default) or token")
+	flag.StringVar(&cfg.VaultJWTSource, "vault-jwt-source", cfg.VaultJWTSource, "JWT source for token bootstrap: file:///path or http://host/path")
+
+	// Request handling
+	flag.IntVar(&cfg.DefaultRetryAfter, "default-retry-after", cfg.DefaultRetryAfter, "Seconds to suggest for retry")
+
+	// Security settings
+	flag.BoolVar(&cfg.RequireTPM, "require-tpm", cfg.RequireTPM, "Require TPM attestation")
+	flag.BoolVar(&cfg.AutoApproveFromTrust, "auto-approve-trust", cfg.AutoApproveFromTrust, "Auto-approve from trusted networks")
+	flag.BoolVar(&cfg.AutoApproveTPM, "auto-approve-tpm", cfg.AutoApproveTPM, "Auto-approve when TPM attestation is verified")
+	flag.BoolVar(&cfg.AutoApproveDNS, "auto-approve-dns", cfg.AutoApproveDNS, "Auto-approve when reverse DNS matches hostname")
+
+	// Web UI settings
+	flag.BoolVar(&cfg.WebEnabled, "web-enabled", cfg.WebEnabled, "Enable web UI")
+	flag.StringVar(&cfg.WebPathPrefix, "web-path-prefix", cfg.WebPathPrefix, "Web UI path prefix")
+	flag.StringVar(&cfg.SessionSecret, "session-secret", cfg.SessionSecret, "Session secret for web cookies")
+	flag.StringVar(&cfg.WebAuthMethod, "web-auth-method", cfg.WebAuthMethod, "Web auth method: none, basic, jwt, basic+jwt, jwt+basic")
+	flag.StringVar(&cfg.WebAuthRealm, "web-auth-realm", cfg.WebAuthRealm, "Realm for basic auth")
+
+	// JWT authentication settings
+	flag.StringVar(&cfg.JWTSecret, "jwt-secret", cfg.JWTSecret, "HMAC secret for JWT auth")
+	flag.StringVar(&cfg.JWTPublicKey, "jwt-public-key", cfg.JWTPublicKey, "Path to PEM public key for JWT auth")
+	flag.StringVar(&cfg.JWTJWKSAddr, "jwt-jwks-addr", cfg.JWTJWKSAddr, "URL to JWKS endpoint for JWT auth")
+	flag.StringVar(&cfg.JWTIssuer, "jwt-issuer", cfg.JWTIssuer, "Expected JWT issuer claim")
+	flag.StringVar(&cfg.JWTAudience, "jwt-audience", cfg.JWTAudience, "Expected JWT audience claim")
+	flag.StringVar(&cfg.JWTClaimUser, "jwt-claim-user", cfg.JWTClaimUser, "JWT claim for username (default: sub)")
+	flag.StringVar(&cfg.JWTClaimRole, "jwt-claim-role", cfg.JWTClaimRole, "JWT claim for role")
+
+	// Storage settings
+	flag.StringVar(&cfg.StoreType, "store-type", cfg.StoreType, "Store type: memory or sqlite")
+	flag.StringVar(&cfg.StorePath, "store-path", cfg.StorePath, "Path to SQLite database file")
+
+	// Registration mTLS settings
+	flag.BoolVar(&cfg.RegistrationRequireMTLS, "registration-require-mtls", cfg.RegistrationRequireMTLS, "Require client certificate for /registration")
+	flag.StringVar(&cfg.RegistrationCACert, "registration-ca-cert", cfg.RegistrationCACert, "Path to CA cert for verifying registration client certs")
+
+	// Alert settings
+	flag.IntVar(&cfg.AlertStaleAgentMinutes, "alert-stale-agent-minutes", cfg.AlertStaleAgentMinutes, "Minutes before agent is considered stale")
+	flag.IntVar(&cfg.AlertCheckInterval, "alert-check-interval", cfg.AlertCheckInterval, "Interval in seconds to check for stale agents")
+
+	// vSphere integration settings
+	flag.StringVar(&cfg.VSphereAddr, "vsphere-addr", cfg.VSphereAddr, "vCenter address (enables vSphere integration)")
+	flag.StringVar(&cfg.VSphereUsername, "vsphere-username", cfg.VSphereUsername, "vCenter username")
+	flag.StringVar(&cfg.VSpherePasswordFile, "vsphere-password-file", cfg.VSpherePasswordFile, "Path to vCenter password file")
+	flag.StringVar(&cfg.VSphereDatacenter, "vsphere-datacenter", cfg.VSphereDatacenter, "vSphere datacenter to search")
+	flag.BoolVar(&cfg.VSphereSkipVerify, "vsphere-skip-verify", cfg.VSphereSkipVerify, "Skip TLS verification for vCenter")
+	flag.BoolVar(&cfg.VSphereEKBinding, "vsphere-ek-binding", cfg.VSphereEKBinding, "Enable vTPM EK fingerprint verification")
+	flag.BoolVar(&cfg.VSphereRequireEK, "vsphere-require-ek", cfg.VSphereRequireEK, "Fail attestation if EK data unavailable from vSphere")
+
+	flag.Parse()
 
 	if *showVersion {
 		fmt.Printf("MID Bootstrap Server Version: %s, build: %s\n", Version, BuildTime)
 		return
 	}
 
-	// Load configuration
+	// If a config file is specified, load it over defaults, then re-apply
+	// only the flags that were explicitly set on the command line.
 	if *configPath != "" {
-		cfg, err = config.LoadConfig(*configPath)
+		fileCfg, err := config.LoadConfig(*configPath)
 		if err != nil {
 			log.Fatalf("Failed to load config: %v", err)
 		}
-		// CLI flags override config file
-		if *listenAddr != ":8443" {
-			cfg.ListenAddr = *listenAddr
-		}
-		if *tlsCert != "" {
-			cfg.TLSCert = *tlsCert
-		}
-		if *tlsKey != "" {
-			cfg.TLSKey = *tlsKey
-		}
-		if *bootstrapType != "" {
-			cfg.BootstrapType = *bootstrapType
-		}
-		if *vaultJWTSource != "" {
-			cfg.VaultJWTSource = *vaultJWTSource
-		}
-		if !*useTLS {
-			cfg.UseTLS = useTLS
-		}
-		if !*vaultUseTLS {
-			cfg.VaultUseTLS = vaultUseTLS
-		}
-	} else {
-		// Use command line flags and defaults
-		cfg = config.DefaultConfig()
-		cfg.ListenAddr = *listenAddr
-		cfg.TLSCert = *tlsCert
-		cfg.TLSKey = *tlsKey
-		if *vaultAddr != "" {
-			cfg.VaultAddr = *vaultAddr
-		}
-		cfg.VaultAuthMethod = *vaultAuthMethod
-		if *vaultToken != "" {
-			cfg.VaultToken = *vaultToken
-		}
-		if *vaultAuthRole != "" {
-			cfg.VaultAuthRole = *vaultAuthRole
-		}
-		if *vaultAuthMount != "" {
-			cfg.VaultAuthMount = *vaultAuthMount
-		}
-		cfg.MIDAuthMount = *midAuthMount
-		cfg.MIDRole = *midRole
-		cfg.UseTLS = useTLS
-		cfg.VaultUseTLS = vaultUseTLS
-		if *bootstrapType != "" {
-			cfg.BootstrapType = *bootstrapType
-		}
-		if *vaultJWTSource != "" {
-			cfg.VaultJWTSource = *vaultJWTSource
-		}
 
-		// Check environment variables
-		if v := os.Getenv("VAULT_ADDR"); v != "" && cfg.VaultAddr == "" {
-			cfg.VaultAddr = v
-		}
-		if v := os.Getenv("VAULT_TOKEN"); v != "" && cfg.VaultToken == "" {
-			cfg.VaultToken = v
-		}
+		// Start from the file config
+		*cfg = *fileCfg
+
+		// Re-apply only explicitly provided CLI flags on top
+		flag.Visit(func(f *flag.Flag) {
+			f.Value.Set(f.Value.String())
+		})
+	}
+
+	// Check environment variables as fallback
+	if v := os.Getenv("VAULT_ADDR"); v != "" && cfg.VaultAddr == "" {
+		cfg.VaultAddr = v
+	}
+	if v := os.Getenv("VAULT_TOKEN"); v != "" && cfg.VaultToken == "" {
+		cfg.VaultToken = v
 	}
 
 	// Validate configuration
@@ -142,12 +162,12 @@ func main() {
 
 	log.Printf("Starting MID Bootstrap Server")
 	log.Printf("  Listen: %s", cfg.ListenAddr)
-	if cfg.TLSEnabled() {
+	if cfg.UseTLS {
 		log.Printf("  TLS: enabled (cert=%s, key=%s)", cfg.TLSCert, cfg.TLSKey)
 	} else {
 		log.Printf("  TLS: disabled (plain HTTP, reverse proxy mode)")
 	}
-	log.Printf("  Vault: %s (TLS: %v)", cfg.VaultAddr, cfg.VaultTLSEnabled())
+	log.Printf("  Vault: %s (TLS: %v)", cfg.VaultAddr, cfg.VaultUseTLS)
 	log.Printf("  Vault Auth: %s", cfg.VaultAuthMethod)
 	if cfg.VaultAuthMethod == "jwt" {
 		log.Printf("  Vault Auth Role: %s", cfg.VaultAuthRole)
@@ -160,6 +180,9 @@ func main() {
 		log.Printf("  MID Role: %s", cfg.MIDRole)
 	}
 	log.Printf("  Web UI: %v", cfg.WebEnabled)
+	if cfg.VSphereAddr != "" {
+		log.Printf("  vSphere: %s (EK binding: %v, require EK: %v)", cfg.VSphereAddr, cfg.VSphereEKBinding, cfg.VSphereRequireEK)
+	}
 
 	// Create server
 	srv, err := server.NewServer(cfg)

@@ -24,6 +24,7 @@ import (
 	"mid-bootstrap-server.git/internal/store"
 	"mid-bootstrap-server.git/internal/types"
 	"mid-bootstrap-server.git/internal/vault"
+	"mid-bootstrap-server.git/internal/vsphere"
 )
 
 // Server is the main bootstrap server
@@ -38,6 +39,7 @@ type Server struct {
 	wsHub              *WebSocketHub  // WebSocket hub for real-time events
 	powVerifier        *pow.Verifier  // PoW verifier for anti-spoofing (advisory mode)
 	alertService       *AlertService  // Alert service for stale agents and version changes
+	vsphereClient      *vsphere.Client // vSphere client for vTPM EK binding (nil when disabled)
 
 	// Vault health status
 	vaultHealthMu     sync.RWMutex
@@ -100,6 +102,27 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		wsHub:        NewWebSocketHub(),
 		powVerifier:  pow.NewVerifier(16, 2), // difficulty=16, witnessThreshold=2
 		alertService: NewAlertService(dataStore, staleAgentMinutes),
+	}
+
+	// Connect to vSphere if configured (for vTPM EK binding)
+	if cfg.VSphereAddr != "" {
+		vsClient := vsphere.NewClient(&vsphere.Config{
+			VCenterAddr:  cfg.VSphereAddr,
+			Username:     cfg.VSphereUsername,
+			PasswordFile: cfg.VSpherePasswordFile,
+			Datacenter:   cfg.VSphereDatacenter,
+			SkipVerify:   cfg.VSphereSkipVerify,
+			CacheTTL:     cfg.VSphereCacheTTL,
+			EKBinding:    cfg.VSphereEKBinding,
+			RequireEK:    cfg.VSphereRequireEK,
+		})
+		if err := vsClient.Connect(context.Background()); err != nil {
+			log.Printf("WARNING: vSphere connection failed: %v (EK binding will not be available)", err)
+		} else {
+			s.vsphereClient = vsClient
+			log.Printf("vSphere connected to %s (EK binding: %v, require EK: %v)",
+				cfg.VSphereAddr, cfg.VSphereEKBinding, cfg.VSphereRequireEK)
+		}
 	}
 
 	// Load CA certificate for registration mTLS if configured
@@ -219,7 +242,7 @@ func (s *Server) Start() error {
 
 	log.Printf("Starting bootstrap server on %s", s.config.ListenAddr)
 
-	if s.config.TLSEnabled() {
+	if s.config.UseTLS {
 		// Build TLS configuration
 		tlsConfig := &tls.Config{
 			MinVersion: tls.VersionTLS12,

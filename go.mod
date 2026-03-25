@@ -1,12 +1,13 @@
 module mid-bootstrap-server.git
 
-go 1.24.0
+go 1.24.13
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4
+	github.com/vmware/govmomi v0.53.0
 	modernc.org/sqlite v1.44.2
 )
 

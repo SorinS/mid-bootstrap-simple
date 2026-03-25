@@ -204,6 +204,47 @@ func (s *Server) handleBootstrap(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// vSphere EK binding verification (anti-proxy attack for vSphere VMs)
+	if tpmVerified && s.vsphereClient != nil && s.vsphereClient.EKBindingEnabled() {
+		vmInfo, err := s.vsphereClient.LookupVMByIP(r.Context(), clientIP)
+		if err != nil {
+			log.Printf("[vSphere] EK lookup failed for %s: %v", clientIP, err)
+		}
+
+		if vmInfo != nil && vmInfo.HasVTPM {
+			// VM is in vSphere and has a vTPM — verify EK binding
+			if len(vmInfo.EKCertFingerprints) == 0 {
+				if s.vsphereClient.RequireEK() {
+					log.Printf("[vSphere] DENIED: VM %s has vTPM but no EK certs from vSphere (require_ek=true)", vmInfo.Name)
+					tpmVerified = false
+					machineReq.TPMAttestation.VerifyErrors = append(machineReq.TPMAttestation.VerifyErrors,
+						"vSphere vTPM EK data unavailable and vsphere_require_ek is enabled")
+				} else {
+					log.Printf("[vSphere] WARNING: VM %s has vTPM but no EK certs from vSphere, skipping EK binding", vmInfo.Name)
+				}
+			} else if machineReq.TPMAttestation != nil && len(machineReq.TPMAttestation.EKCertificate) > 0 {
+				// Compare agent's EK cert against vSphere-known fingerprints
+				if tpm.MatchEKFingerprint(machineReq.TPMAttestation.EKCertificate, vmInfo.EKCertFingerprints) {
+					log.Printf("[vSphere] EK binding verified for VM %s (%s) — vTPM identity confirmed", vmInfo.Name, clientIP)
+				} else {
+					log.Printf("[vSphere] DENIED: EK fingerprint mismatch for VM %s (%s) — possible proxy attack", vmInfo.Name, clientIP)
+					tpmVerified = false
+					machineReq.TPMAttestation.VerifyErrors = append(machineReq.TPMAttestation.VerifyErrors,
+						"EK certificate does not match vSphere-registered vTPM")
+				}
+			} else if s.vsphereClient.RequireEK() {
+				log.Printf("[vSphere] DENIED: Agent from %s did not provide EK certificate (require_ek=true)", clientIP)
+				tpmVerified = false
+				machineReq.TPMAttestation.VerifyErrors = append(machineReq.TPMAttestation.VerifyErrors,
+					"agent did not provide EK certificate and vsphere_require_ek is enabled")
+			} else {
+				log.Printf("[vSphere] WARNING: Agent from %s did not provide EK certificate, skipping EK binding", clientIP)
+			}
+		} else if vmInfo == nil {
+			log.Printf("[vSphere] IP %s not found in vCenter — not a vSphere VM, skipping EK binding", clientIP)
+		}
+	}
+
 	// Debug: check if auto-approve would trigger
 	if s.config.AutoApproveTPM {
 		log.Printf("[TPM] AutoApproveTPM is enabled, tpmVerified=%v", tpmVerified)

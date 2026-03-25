@@ -33,5 +33,15 @@
     "admin": {
       "password_hash": "5e884898da28047d9164b9cde84bfdc3c7a8e3b5d9b..."
     }
-  }
+  },
+
+  "_comment_vsphere": "vSphere integration for vTPM EK binding (optional, anti-proxy)",
+  "vsphere_addr": "",
+  "vsphere_username": "readonly-user@vsphere.local",
+  "vsphere_password_file": "/etc/mid-bootstrap/vsphere-password.txt",
+  "vsphere_datacenter": "DC1",
+  "vsphere_skip_verify": false,
+  "vsphere_ek_binding": true,
+  "vsphere_require_ek": false,
+  "vsphere_cache_ttl": "5m"
 }
