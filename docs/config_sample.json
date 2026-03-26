@@ -1,0 +1,96 @@
+{
+  "_comment": "Server settings",
+  "listen_addr": ":8443",
+  "use_tls": true,
+  "tls_cert": "certs/bootstrap-cert.pem",
+  "tls_key": "certs/bootstrap-key.pem",
+  "tls_min_version": "1.2",
+
+  "_comment_vault_conn": "Vault connection settings",
+  "vault_addr": "https://192.168.0.2:8200",
+  "vault_use_tls": true,
+  "vault_ca_cert": "certs/vault-ca.pem",
+  "vault_skip_verify": false,
+  "vault_namespace": "",
+
+  "_comment_vault_auth": "Vault authentication settings (token or jwt)",
+  "vault_auth_method": "token",
+  "vault_token": "",
+  "vault_token_file": "vault-token.txt",
+  "vault_auth_role": "",
+  "vault_auth_mount": "jwt",
+  "vault_jwt_file": "",
+
+  "_comment_mid": "Vault MID auth settings (for certificate bootstrap type)",
+  "mid_auth_mount": "mid",
+  "mid_role": "vm",
+
+  "_comment_bootstrap": "Bootstrap mode settings",
+  "bootstrap_type": "certificate",
+  "vault_jwt_source": "",
+
+  "_comment_health": "Vault health check settings",
+  "vault_health_check_interval": "20s",
+
+  "_comment_requests": "Request handling",
+  "request_ttl": "24h",
+  "cleanup_interval": "1h",
+  "default_retry_after": 300,
+
+  "_comment_security": "Security settings",
+  "trusted_networks": ["192.168.1.0/24"],
+  "require_tpm": false,
+  "auto_approve_from_trust": false,
+  "auto_approve_tpm": false,
+  "auto_approve_dns": false,
+
+  "_comment_provisioning": "Provisioning windows (optional)",
+  "provisioning_windows": [],
+
+  "_comment_web": "Web UI settings",
+  "web_enabled": true,
+  "web_path_prefix": "/admin",
+  "session_secret": "change-me-in-production",
+
+  "_comment_web_auth": "Web authentication settings",
+  "web_auth_method": "basic",
+  "web_auth_realm": "MID Bootstrap Server",
+  "web_auth_users": {
+    "admin": {
+      "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "roles": ["admin"]
+    }
+  },
+
+  "_comment_jwt": "JWT authentication settings (when web_auth_method includes jwt)",
+  "jwt_secret": "",
+  "jwt_public_key": "",
+  "jwt_jwks_addr": "",
+  "jwt_issuer": "",
+  "jwt_audience": "",
+  "jwt_claim_user": "sub",
+  "jwt_claim_role": "",
+  "jwt_default_roles": [],
+
+  "_comment_store": "Storage settings",
+  "store_type": "sqlite",
+  "store_path": "bootstrap.db",
+
+  "_comment_mtls": "Registration mTLS settings",
+  "registration_require_mtls": false,
+  "registration_ca_cert": "",
+
+  "_comment_alerts": "Alert settings",
+  "alert_stale_agent_minutes": 10,
+  "alert_check_interval": 60,
+
+  "_comment_vsphere": "vSphere integration (optional, for vTPM EK binding anti-proxy)",
+  "vsphere_addr": "",
+  "vsphere_username": "",
+  "vsphere_password_file": "",
+  "vsphere_datacenter": "",
+  "vsphere_skip_verify": false,
+  "vsphere_ek_binding": false,
+  "vsphere_require_ek": false,
+  "vsphere_cache_ttl": "5m"
+}
